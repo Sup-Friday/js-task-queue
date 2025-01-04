@@ -206,10 +206,12 @@ export class TaskQueue extends TaskQueueBase {
    * Clear all waited tasks from the queue.
    */
   clearWaitedTasks() {
-    this.tasksWaitingQueue = [];
-    this.prioritizedTasksWaitingQueue = [];
+    Promise.resolve().then(() => {
+      this.tasksWaitingQueue = [];
+      this.prioritizedTasksWaitingQueue = [];
 
-    this._log({ level: 'info' }, 'Cleared waited tasks');
+      this._log({ level: 'info' }, 'Cleared waited tasks');
+    });
   }
 
   /**
@@ -217,29 +219,33 @@ export class TaskQueue extends TaskQueueBase {
    * @param taskIdOrTask The ID of the task or task object
    */
   removeWaitedTask(taskIdOrTask: TaskId | Task) {
-    const taskId =
-      typeof taskIdOrTask === 'string' || typeof taskIdOrTask === 'number'
-        ? taskIdOrTask
-        : taskIdOrTask.taskId;
+    Promise.resolve().then(() => {
+      const taskId =
+        typeof taskIdOrTask === 'string' || typeof taskIdOrTask === 'number'
+          ? taskIdOrTask
+          : taskIdOrTask.taskId;
 
-    this.tasksWaitingQueue = this.tasksWaitingQueue.filter(
-      (task) => task.taskId !== taskId,
-    );
-    this.prioritizedTasksWaitingQueue =
-      this.prioritizedTasksWaitingQueue.filter(
+      this.tasksWaitingQueue = this.tasksWaitingQueue.filter(
         (task) => task.taskId !== taskId,
       );
+      this.prioritizedTasksWaitingQueue =
+        this.prioritizedTasksWaitingQueue.filter(
+          (task) => task.taskId !== taskId,
+        );
 
-    this._log({ level: 'info' }, `Removed waited task ${taskId}`);
+      this._log({ level: 'info' }, `Removed waited task ${taskId}`);
+    });
   }
 
   /**
    * Clear all failed retryable tasks from the queue.
    */
   clearFailedRetryableTasks() {
-    this.failedRetryableTaskQueue = [];
+    Promise.resolve().then(() => {
+      this.failedRetryableTaskQueue = [];
 
-    this._log({ level: 'info' }, 'Cleared failed retryable tasks');
+      this._log({ level: 'info' }, 'Cleared failed retryable tasks');
+    });
   }
 
   /**
@@ -247,16 +253,18 @@ export class TaskQueue extends TaskQueueBase {
    * @param taskIdOrTask The ID of the task or task object
    */
   removeFailedRetryableTask(taskIdOrTask: TaskId | Task) {
-    const taskId =
-      typeof taskIdOrTask === 'string' || typeof taskIdOrTask === 'number'
-        ? taskIdOrTask
-        : taskIdOrTask.taskId;
+    Promise.resolve().then(() => {
+      const taskId =
+        typeof taskIdOrTask === 'string' || typeof taskIdOrTask === 'number'
+          ? taskIdOrTask
+          : taskIdOrTask.taskId;
 
-    this.failedRetryableTaskQueue = this.failedRetryableTaskQueue.filter(
-      (task) => task.taskId !== taskId,
-    );
+      this.failedRetryableTaskQueue = this.failedRetryableTaskQueue.filter(
+        (task) => task.taskId !== taskId,
+      );
 
-    this._log({ level: 'info' }, `Removed failed retryable task ${taskId}`);
+      this._log({ level: 'info' }, `Removed failed retryable task ${taskId}`);
+    });
   }
 
   /** @internal */

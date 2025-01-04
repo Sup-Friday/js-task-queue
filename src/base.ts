@@ -126,7 +126,7 @@ export class TaskQueueBase extends TaskQueueCore {
   }
 
   /** @internal */
-  protected _getNextTask() {
+  protected _getNextTask(previousTaskHasRun: boolean) {
     let queue: Array<Task>;
     // If the queue instance is retrying the failed retryable tasks, then it
     // should first consider the failed retryable task queue
@@ -158,16 +158,32 @@ export class TaskQueueBase extends TaskQueueCore {
       }
 
       case 'head-with-truncation': {
-        const nextTask = queue.shift();
+        // If the previous task has run, then clear the corresponding waiting
+        // queue and return null
+        if (previousTaskHasRun) {
+          // Clear the prioritized and normal task waiting queue
+          if (queue === this.prioritizedTasksWaitingQueue) {
+            this.prioritizedTasksWaitingQueue = [];
+          } else if (queue === this.tasksWaitingQueue) {
+            this.tasksWaitingQueue = [];
+          }
 
-        // Clear the prioritized and normal task waiting queue
-        if (queue === this.prioritizedTasksWaitingQueue) {
-          this.prioritizedTasksWaitingQueue = [];
-        } else if (queue === this.tasksWaitingQueue) {
-          this.tasksWaitingQueue = [];
+          return null;
         }
+        // Otherwise, pick the first task from the waiting queue and clear the
+        // corresponding waiting queue
+        else {
+          const nextTask = queue.shift();
 
-        return nextTask;
+          // Clear the prioritized and normal task waiting queue
+          if (queue === this.prioritizedTasksWaitingQueue) {
+            this.prioritizedTasksWaitingQueue = [];
+          } else if (queue === this.tasksWaitingQueue) {
+            this.tasksWaitingQueue = [];
+          }
+
+          return nextTask;
+        }
       }
 
       case 'tail': {
@@ -175,16 +191,32 @@ export class TaskQueueBase extends TaskQueueCore {
       }
 
       case 'tail-with-truncation': {
-        const nextTask = queue.pop();
+        // If the previous task has run, then clear the corresponding waiting
+        // queue and return null
+        if (previousTaskHasRun) {
+          // Clear the prioritized and normal task waiting queue
+          if (queue === this.prioritizedTasksWaitingQueue) {
+            this.prioritizedTasksWaitingQueue = [];
+          } else if (queue === this.tasksWaitingQueue) {
+            this.tasksWaitingQueue = [];
+          }
 
-        // Clear the prioritized and normal task waiting queue
-        if (queue === this.prioritizedTasksWaitingQueue) {
-          this.prioritizedTasksWaitingQueue = [];
-        } else if (queue === this.tasksWaitingQueue) {
-          this.tasksWaitingQueue = [];
+          return null;
         }
+        // Otherwise, pick the last task from the waiting queue and clear the
+        // corresponding waiting queue
+        else {
+          const nextTask = queue.pop();
 
-        return nextTask;
+          // Clear the prioritized and normal task waiting queue
+          if (queue === this.prioritizedTasksWaitingQueue) {
+            this.prioritizedTasksWaitingQueue = [];
+          } else if (queue === this.tasksWaitingQueue) {
+            this.tasksWaitingQueue = [];
+          }
+
+          return nextTask;
+        }
       }
 
       default: {
@@ -266,15 +298,17 @@ export class TaskQueueBase extends TaskQueueCore {
 
     this.stopped = false;
 
-    // Enumerate through all promise queues and add tasks to the queue if the
-    // queue is not full
-    this.promiseQueues.forEach((queue) => {
-      if (queue.length < this.promiseQueueCapacity) {
-        const task = this._getNextTask();
-        if (task) {
-          this._addTask(task);
+    Promise.resolve().then(() => {
+      // Enumerate through all promise queues and add tasks to the queue if the
+      // queue is not full
+      this.promiseQueues.forEach((queue) => {
+        if (queue.length < this.promiseQueueCapacity) {
+          const task = this._getNextTask(false);
+          if (task) {
+            this._addTask(task);
+          }
         }
-      }
+      });
     });
   }
 
@@ -309,15 +343,17 @@ export class TaskQueueBase extends TaskQueueCore {
     this.retrying = true;
     this.stopped = false;
 
-    // Enumerate through all promise queues and add tasks to the queue if the
-    // queue is not full
-    this.promiseQueues.forEach((queue) => {
-      if (queue.length < this.promiseQueueCapacity) {
-        const task = this._getNextTask();
-        if (task) {
-          this._addTask(task);
+    Promise.resolve().then(() => {
+      // Enumerate through all promise queues and add tasks to the queue if the
+      // queue is not full
+      this.promiseQueues.forEach((queue) => {
+        if (queue.length < this.promiseQueueCapacity) {
+          const task = this._getNextTask(false);
+          if (task) {
+            this._addTask(task);
+          }
         }
-      }
+      });
     });
   }
 

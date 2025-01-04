@@ -7,4 +7,4 @@ let currentTaskId: number = 0;
  * @param incremental Toggle to use incremental task ID
  */
 export const getTaskId = (incremental: boolean = true) =>
-  incremental ? currentTaskId++ : Math.floor(Math.random() * RANDOM_BASE);
+  incremental ? ++currentTaskId : Math.floor(Math.random() * RANDOM_BASE);

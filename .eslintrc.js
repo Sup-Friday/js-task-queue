@@ -11,7 +11,7 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['@typescript-eslint'],
-  ignorePatterns: ['dist', 'docs'],
+  ignorePatterns: ['dist', 'docs', 'test'],
   rules: {
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': 'warn',

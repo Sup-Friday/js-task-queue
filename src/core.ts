@@ -83,7 +83,9 @@ export abstract class TaskQueueCore {
   /** @internal */
   protected abstract _pushTaskToWaitingQueue(task: Task): void;
   /** @internal */
-  protected abstract _getNextTask(): Task | undefined | null;
+  protected abstract _getNextTask(
+    previousTaskHasRun: boolean,
+  ): Task | undefined | null;
   /** @internal */
   protected abstract _shouldStop(task?: Task): boolean;
 
@@ -94,7 +96,7 @@ export abstract class TaskQueueCore {
     }
 
     return new Array(concurrency).fill(null).map(() => ({
-      queueId: this.currentQueueId++,
+      queueId: ++this.currentQueueId,
       promise: Promise.resolve(),
       length: 0,
       taskIds: [],
@@ -175,23 +177,25 @@ export abstract class TaskQueueCore {
       // Update the promise queues
       this.promiseQueues = newPromiseQueue;
 
-      // If the new concurrency is greater than the old one, add new tasks to
-      // fully leverage the whole concurrency capacity
-      if (oldConcurrency < newConcurrency && !this._shouldStop()) {
-        for (let i = 0; i < newConcurrency - oldConcurrency; i++) {
-          const task = this._getNextTask();
+      Promise.resolve().then(() => {
+        // If the new concurrency is greater than the old one, add new tasks to
+        // fully leverage the whole concurrency capacity
+        if (oldConcurrency < newConcurrency && !this._shouldStop()) {
+          for (let i = 0; i < newConcurrency - oldConcurrency; i++) {
+            const task = this._getNextTask(false);
 
-          if (task) {
-            this._log(
-              { level: 'info' },
-              `Adding task ${task.taskId} to the queue due to extra 
+            if (task) {
+              this._log(
+                { level: 'info' },
+                `Adding task ${task.taskId} to the queue due to extra 
               concurrency`,
-            );
+              );
 
-            this._addTask(task);
+              this._addTask(task);
+            }
           }
         }
-      }
+      });
 
       this._log(
         { level: 'info' },
@@ -430,7 +434,7 @@ export abstract class TaskQueueCore {
         // previous "Promise.resolve().then()" finishes appending tasks to
         // the waiting queue
         Promise.resolve().then(() => {
-          const nextTask = this._getNextTask();
+          const nextTask = this._getNextTask(true);
 
           if (nextTask) {
             this._log(
