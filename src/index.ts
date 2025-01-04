@@ -206,6 +206,7 @@ export class TaskQueue extends TaskQueueBase {
    * Clear all waited tasks from the queue.
    */
   clearWaitedTasks() {
+    // Wait for appending tasks to waiting queue
     Promise.resolve().then(() => {
       this.tasksWaitingQueue = [];
       this.prioritizedTasksWaitingQueue = [];
@@ -219,6 +220,7 @@ export class TaskQueue extends TaskQueueBase {
    * @param taskIdOrTask The ID of the task or task object
    */
   removeWaitedTask(taskIdOrTask: TaskId | Task) {
+    // Wait for appending tasks to waiting queue
     Promise.resolve().then(() => {
       const taskId =
         typeof taskIdOrTask === 'string' || typeof taskIdOrTask === 'number'
@@ -241,6 +243,7 @@ export class TaskQueue extends TaskQueueBase {
    * Clear all failed retryable tasks from the queue.
    */
   clearFailedRetryableTasks() {
+    // Wait for appending tasks to waiting queue
     Promise.resolve().then(() => {
       this.failedRetryableTaskQueue = [];
 
@@ -253,6 +256,7 @@ export class TaskQueue extends TaskQueueBase {
    * @param taskIdOrTask The ID of the task or task object
    */
   removeFailedRetryableTask(taskIdOrTask: TaskId | Task) {
+    // Wait for appending tasks to waiting queue
     Promise.resolve().then(() => {
       const taskId =
         typeof taskIdOrTask === 'string' || typeof taskIdOrTask === 'number'

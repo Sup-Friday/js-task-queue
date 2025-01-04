@@ -177,6 +177,7 @@ export abstract class TaskQueueCore {
       // Update the promise queues
       this.promiseQueues = newPromiseQueue;
 
+      // Wait for appending tasks to waiting queue
       Promise.resolve().then(() => {
         // If the new concurrency is greater than the old one, add new tasks to
         // fully leverage the whole concurrency capacity

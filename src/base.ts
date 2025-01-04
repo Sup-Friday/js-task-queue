@@ -298,6 +298,7 @@ export class TaskQueueBase extends TaskQueueCore {
 
     this.stopped = false;
 
+    // Wait for appending tasks to waiting queue
     Promise.resolve().then(() => {
       // Enumerate through all promise queues and add tasks to the queue if the
       // queue is not full
@@ -343,6 +344,7 @@ export class TaskQueueBase extends TaskQueueCore {
     this.retrying = true;
     this.stopped = false;
 
+    // Wait for appending tasks to waiting queue
     Promise.resolve().then(() => {
       // Enumerate through all promise queues and add tasks to the queue if the
       // queue is not full
