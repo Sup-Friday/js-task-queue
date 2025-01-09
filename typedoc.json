@@ -1,5 +1,5 @@
 {
-  "name": "simple-js-task-queue",
+  "name": "taskon",
   "$schema": "https://typedoc.org/schema.json",
   "out": "docs",
   "entryPoints": ["./src/index.ts"]

@@ -1,4 +1,4 @@
-<h1 align="center">simple-js-task-queue</h1>
+<h1 align="center">taskon</h1>
 
 <div align="center">
   A simple javascript/typesciprt tasks queue that supports dynamic concurrency control, designed by
@@ -32,13 +32,13 @@ This lightweight, error-tolerant, no-dependency library provides a sophisticated
 ## Installation
 
 ```bash
-npm install simple-js-task-queue
+yarn add taskon
 ```
 
 Or
 
 ```bash
-yarn add simple-js-task-queue
+npm install taskon
 ```
 
 ## Demo
@@ -50,7 +50,7 @@ Check out [this codesanbox project](https://codesandbox.io/s/react-typescript-fo
 Below is a simple example demonstrating how to use the `TaskQueue` to add and execute a task:
 
 ```typescript
-import { TaskQueue } from 'simple-js-task-queue';
+import { TaskQueue } from 'taskon';
 
 const queue = new TaskQueue();
 
@@ -92,7 +92,7 @@ The `TaskQueue` class is at the core of the library, offering a rich set of meth
 | `removeFailedRetryableTask`   | Removes a specific task from the retry list.                                | `taskIdOrTask`                         |
 | `removeWaitedTask`            | Removes a specific task from the waiting list.                              | `taskIdOrTask`                         |
 
-For more detailed information on each method, including parameter types and return values, please refer to the TypeDoc generated documentation in the `docs` folder or [this link](https://shuo-s-feng.github.io/simple-js-task-queue/).
+For more detailed information on each method, including parameter types and return values, please refer to the TypeDoc generated documentation in the `docs` folder or [this link](https://shuo-s-feng.github.io/taskon/).
 
 ## License
 
