@@ -7,6 +7,31 @@
 
 <br />
 
+> ⚠️ **Deprecation Notice**: This package has been renamed to [`taskon`](https://www.npmjs.com/package/taskon). The `simple-js-task-queue` package is now in **legacy mode** and will no longer receive regular updates or feature improvements. Only **critical bug fixes** will be applied to this package if any **major bugs** are found.
+
+## Migration Guide
+
+To migrate to `taskon`, follow these simple steps:
+
+1. Install the new package:
+
+```bash
+yarn add taskon
+# or
+npm install taskon
+```
+
+2. Update your imports:
+
+```diff
+- import { TaskQueue } from 'simple-js-task-queue';
++ import { TaskQueue } from 'taskon';
+```
+
+That's it! No other code changes are needed as `taskon` maintains full API compatibility.
+
+<br />
+
 ## Table of Contents
 
 - [Introduction](#introduction)
@@ -32,13 +57,13 @@ This lightweight, error-tolerant, no-dependency library provides a sophisticated
 ## Installation
 
 ```bash
-npm install simple-js-task-queue
+yarn add simple-js-task-queue
 ```
 
 Or
 
 ```bash
-yarn add simple-js-task-queue
+npm install simple-js-task-queue
 ```
 
 ## Demo
@@ -91,8 +116,6 @@ The `TaskQueue` class is at the core of the library, offering a rich set of meth
 | `clearWaitedTasks`            | Removes all tasks waiting to be executed.                                   |                                        |
 | `removeFailedRetryableTask`   | Removes a specific task from the retry list.                                | `taskIdOrTask`                         |
 | `removeWaitedTask`            | Removes a specific task from the waiting list.                              | `taskIdOrTask`                         |
-
-For more detailed information on each method, including parameter types and return values, please refer to the TypeDoc generated documentation in the `docs` folder or [this link](https://shuo-s-feng.github.io/simple-js-task-queue/).
 
 ## License
 
