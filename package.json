@@ -1,8 +1,8 @@
 {
   "name": "simple-js-task-queue",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "A simple JavaScript/TypeScript tasks queue that supports dynamic concurrency control",
-  "deprecated": "This package has been renamed to 'taskon'. Please use 'taskon' instead as this package will no longer be maintained.",
+  "deprecated": "This package has been renamed to 'taskon'. Please update your dependencies: https://www.npmjs.com/package/taskon",
   "keywords": [
     "task",
     "queue",
