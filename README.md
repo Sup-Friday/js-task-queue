@@ -1,11 +1,9 @@
-<h1 align="center">taskon</h1>
+# taskon
 
-<div align="center">
-  A simple javascript/typesciprt tasks queue that supports dynamic concurrency control, designed by
-  <a href="https://gravatar.com/shuosfeng/">Shuo Feng</a>
-</div>
+[![Test](https://github.com/shuo-s-feng/taskon/actions/workflows/test.yml/badge.svg)](https://github.com/shuo-s-feng/taskon/actions/workflows/test.yml) [![codecov](https://codecov.io/gh/shuo-s-feng/taskon/branch/main/graph/badge.svg)](https://codecov.io/gh/shuo-s-feng/taskon)
 
-<br />
+A simple javascript/typesciprt tasks queue that supports dynamic concurrency control, designed by
+<a href="https://gravatar.com/shuosfeng/">Shuo Feng</a>.
 
 ## Table of Contents
 
