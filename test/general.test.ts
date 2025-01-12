@@ -554,4 +554,20 @@ describe('TaskQueue General Operations', () => {
     // All operations should complete without errors
     expect(true).toBe(true);
   });
+
+  it('handles logger operations', async () => {
+    const queue = new TaskQueue({
+      concurrency: 1,
+      logger: {
+        info: jest.fn(),
+        warn: jest.fn(),
+        error: jest.fn(),
+      },
+      verbose: true,
+    });
+
+    queue.addTask(async () => {});
+
+    expect(queue['logger'].info).toHaveBeenCalled();
+  });
 });

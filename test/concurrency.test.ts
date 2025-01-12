@@ -303,4 +303,99 @@ describe('TaskQueue Concurrency', () => {
     await Promise.all(promises);
     expect(executionOrder).toEqual([0, 1, 2, 3, 4]);
   });
+
+  it('handles concurrency adjustment with task balancing', async () => {
+    const queue = new TaskQueue({
+      concurrency: 2,
+      memorizeTasks: true,
+    });
+    const results: string[] = [];
+    const executionOrder: string[] = [];
+
+    queue.stop();
+
+    // Add long running tasks
+    const tasks = [
+      queue.addTask(async () => {
+        await delay(4 * BASE_TIME_FACTOR);
+        results.push('task1');
+        executionOrder.push('task1');
+      }, 'task1'),
+
+      queue.addTask(async () => {
+        await delay(4 * BASE_TIME_FACTOR);
+        results.push('task2');
+        executionOrder.push('task2');
+      }, 'task2'),
+
+      queue.addTask(async () => {
+        await delay(1 * BASE_TIME_FACTOR);
+        results.push('task3');
+        executionOrder.push('task3');
+      }, 'task3'),
+
+      queue.addTask(async () => {
+        await delay(1 * BASE_TIME_FACTOR);
+        results.push('task4');
+        executionOrder.push('task4');
+      }, 'task4'),
+    ];
+
+    queue.start();
+
+    // Wait for first tasks to start
+    await delay(1 * BASE_TIME_FACTOR);
+
+    // Increase concurrency
+    queue.adjustConcurrency(3);
+
+    // Wait for tasks to complete
+    await Promise.all(tasks);
+
+    // Verify all tasks completed
+    expect(results.length).toBe(4);
+    expect(new Set(results).size).toBe(4);
+
+    // Verify execution order - with increased concurrency, task3 and task4
+    // should complete before task1 and task2
+    expect(executionOrder.indexOf('task3')).toBeLessThan(
+      executionOrder.indexOf('task1'),
+    );
+    expect(executionOrder.indexOf('task4')).toBeLessThan(
+      executionOrder.indexOf('task2'),
+    );
+
+    // Test decreasing concurrency
+    queue.stop();
+    results.length = 0;
+    executionOrder.length = 0;
+
+    const moreTasks = [
+      queue.addTask(async () => {
+        await delay(2 * BASE_TIME_FACTOR);
+        results.push('taskA');
+        executionOrder.push('taskA');
+      }, 'taskA'),
+
+      queue.addTask(async () => {
+        await delay(2 * BASE_TIME_FACTOR);
+        results.push('taskB');
+        executionOrder.push('taskB');
+      }, 'taskB'),
+
+      queue.addTask(async () => {
+        await delay(2 * BASE_TIME_FACTOR);
+        results.push('taskC');
+        executionOrder.push('taskC');
+      }, 'taskC'),
+    ];
+
+    queue.adjustConcurrency(1);
+    queue.start();
+
+    await Promise.all(moreTasks);
+
+    // With reduced concurrency, tasks should execute sequentially
+    expect(executionOrder).toEqual(['taskA', 'taskB', 'taskC']);
+  });
 });
