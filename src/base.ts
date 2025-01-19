@@ -158,31 +158,19 @@ export class TaskQueueBase extends TaskQueueCore {
       }
 
       case 'head-with-truncation': {
+        this.failedRetryableTaskQueue = [];
+        this.prioritizedTasksWaitingQueue = [];
+        this.tasksWaitingQueue = [];
+
         // If the previous task has run, then clear the corresponding waiting
         // queue and return null
         if (previousTaskHasRun) {
-          // Clear the prioritized and normal task waiting queue
-          if (queue === this.prioritizedTasksWaitingQueue) {
-            this.prioritizedTasksWaitingQueue = [];
-          } else if (queue === this.tasksWaitingQueue) {
-            this.tasksWaitingQueue = [];
-          }
-
           return null;
         }
         // Otherwise, pick the first task from the waiting queue and clear the
         // corresponding waiting queue
         else {
-          const nextTask = queue.shift();
-
-          // Clear the prioritized and normal task waiting queue
-          if (queue === this.prioritizedTasksWaitingQueue) {
-            this.prioritizedTasksWaitingQueue = [];
-          } else if (queue === this.tasksWaitingQueue) {
-            this.tasksWaitingQueue = [];
-          }
-
-          return nextTask;
+          return queue.shift();
         }
       }
 
@@ -191,38 +179,20 @@ export class TaskQueueBase extends TaskQueueCore {
       }
 
       case 'tail-with-truncation': {
+        this.failedRetryableTaskQueue = [];
+        this.prioritizedTasksWaitingQueue = [];
+        this.tasksWaitingQueue = [];
+
         // If the previous task has run, then clear the corresponding waiting
         // queue and return null
         if (previousTaskHasRun) {
-          // Clear the prioritized and normal task waiting queue
-          if (queue === this.prioritizedTasksWaitingQueue) {
-            this.prioritizedTasksWaitingQueue = [];
-          } else if (queue === this.tasksWaitingQueue) {
-            this.tasksWaitingQueue = [];
-          }
-
           return null;
         }
         // Otherwise, pick the last task from the waiting queue and clear the
         // corresponding waiting queue
         else {
-          const nextTask = queue.pop();
-
-          // Clear the prioritized and normal task waiting queue
-          if (queue === this.prioritizedTasksWaitingQueue) {
-            this.prioritizedTasksWaitingQueue = [];
-          } else if (queue === this.tasksWaitingQueue) {
-            this.tasksWaitingQueue = [];
-          }
-
-          return nextTask;
+          return queue.pop();
         }
-      }
-
-      default: {
-        throw Error(
-          `Invalid task priority mode ${this.taskPrioritizationMode}`,
-        );
       }
     }
   }

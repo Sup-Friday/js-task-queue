@@ -305,97 +305,38 @@ describe('TaskQueue Concurrency', () => {
   });
 
   it('handles concurrency adjustment with task balancing', async () => {
-    const queue = new TaskQueue({
-      concurrency: 2,
-      memorizeTasks: true,
-    });
+    const queue = new TaskQueue({ concurrency: 3 });
     const results: string[] = [];
-    const executionOrder: string[] = [];
 
     queue.stop();
 
-    // Add long running tasks
-    const tasks = [
+    const tasks = new Array(10).fill(0).map((_, index) =>
       queue.addTask(async () => {
-        await delay(4 * BASE_TIME_FACTOR);
-        results.push('task1');
-        executionOrder.push('task1');
-      }, 'task1'),
-
-      queue.addTask(async () => {
-        await delay(4 * BASE_TIME_FACTOR);
-        results.push('task2');
-        executionOrder.push('task2');
-      }, 'task2'),
-
-      queue.addTask(async () => {
-        await delay(1 * BASE_TIME_FACTOR);
-        results.push('task3');
-        executionOrder.push('task3');
-      }, 'task3'),
-
-      queue.addTask(async () => {
-        await delay(1 * BASE_TIME_FACTOR);
-        results.push('task4');
-        executionOrder.push('task4');
-      }, 'task4'),
-    ];
+        await delay(3 * BASE_TIME_FACTOR);
+        results.push(`task${index + 1}`);
+      }, `task${index + 1}`),
+    );
 
     queue.start();
-
-    // Wait for first tasks to start
     await delay(1 * BASE_TIME_FACTOR);
-
-    // Increase concurrency
+    queue.adjustConcurrency(2);
+    await delay(1 * BASE_TIME_FACTOR);
+    queue.adjustConcurrency(1);
+    await delay(3 * BASE_TIME_FACTOR);
     queue.adjustConcurrency(3);
 
-    // Wait for tasks to complete
     await Promise.all(tasks);
-
-    // Verify all tasks completed
-    expect(results.length).toBe(4);
-    expect(new Set(results).size).toBe(4);
-
-    // Verify execution order - with increased concurrency, task3 and task4
-    // should complete before task1 and task2
-    expect(executionOrder.indexOf('task3')).toBeLessThan(
-      executionOrder.indexOf('task1'),
+    expect(results).toEqual(
+      new Array(10).fill(0).map((_, index) => `task${index + 1}`),
     );
-    expect(executionOrder.indexOf('task4')).toBeLessThan(
-      executionOrder.indexOf('task2'),
-    );
+  });
 
-    // Test decreasing concurrency
-    queue.stop();
-    results.length = 0;
-    executionOrder.length = 0;
+  it('handles invalid task balancing strategy', () => {
+    const queue = new TaskQueue({ concurrency: 2 });
 
-    const moreTasks = [
-      queue.addTask(async () => {
-        await delay(2 * BASE_TIME_FACTOR);
-        results.push('taskA');
-        executionOrder.push('taskA');
-      }, 'taskA'),
-
-      queue.addTask(async () => {
-        await delay(2 * BASE_TIME_FACTOR);
-        results.push('taskB');
-        executionOrder.push('taskB');
-      }, 'taskB'),
-
-      queue.addTask(async () => {
-        await delay(2 * BASE_TIME_FACTOR);
-        results.push('taskC');
-        executionOrder.push('taskC');
-      }, 'taskC'),
-    ];
-
-    queue.adjustConcurrency(1);
-    queue.start();
-
-    await Promise.all(moreTasks);
-
-    // With reduced concurrency, tasks should execute sequentially
-    expect(executionOrder).toEqual(['taskA', 'taskB', 'taskC']);
+    // Test invalid strategy
+    expect(() => {
+      queue.adjustConcurrency(3, 'invalid-strategy' as any);
+    }).toThrow('Unknown task balancing strategy invalid-strategy');
   });
 });

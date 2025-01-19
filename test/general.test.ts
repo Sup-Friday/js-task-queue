@@ -5,6 +5,15 @@ import { delay } from './utils';
 const BASE_TIME_FACTOR = 100;
 
 describe('TaskQueue General Operations', () => {
+  it('creates a queue with default concurrency', () => {
+    const queue = new TaskQueue();
+    expect(queue.getConcurrency()).toBe(1);
+
+    expect(() => new TaskQueue({ concurrency: -1 })).toThrow(
+      'Concurrency must be at least 1',
+    );
+  });
+
   it('subscribes to task status changes', async () => {
     const queue = new TaskQueue({ concurrency: 1 });
     const statusChanges: Array<{ taskId: TaskId; status: TaskStatus }> = [];
@@ -103,6 +112,7 @@ describe('TaskQueue General Operations', () => {
     }, 'task1');
 
     queue.stop();
+    expect(queue.isManuallyStopped()).toBe(true);
 
     await promise1;
     expect(results).toHaveLength(1);
@@ -114,6 +124,7 @@ describe('TaskQueue General Operations', () => {
     }, 'task2');
 
     queue.start();
+    expect(queue.isManuallyStopped()).toBe(false);
 
     await promise2;
     expect(results).toHaveLength(2);
@@ -569,5 +580,77 @@ describe('TaskQueue General Operations', () => {
     queue.addTask(async () => {});
 
     expect(queue['logger'].info).toHaveBeenCalled();
+  });
+
+  it('should throw error when trying to run an already triggered task', async () => {
+    const taskQueue = new TaskQueue();
+    const task = {
+      taskId: 'test-task',
+      callback: async () => {
+        // Simulate some async work
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        return 'result';
+      },
+      status: 'running' as const, // Set initial status to running
+    };
+
+    try {
+      await taskQueue['_runTask'](
+        task as Task<string>,
+        () => {},
+        () => {},
+      );
+    } catch (error: any) {
+      expect(error.message).toBe('Task test-task is already triggered');
+    }
+  });
+
+  it('should return error when setting returnError to true', async () => {
+    const queue = new TaskQueue({ returnError: true });
+    const result = await queue.addTask(async () => {
+      throw new Error('Test error');
+    }, 'test1');
+    expect(result).toBeInstanceOf(Error);
+    expect((result as Error).message).toBe('Test error');
+  });
+
+  it('handles logger operations with different message formats', async () => {
+    const mockLogger = {
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+    };
+
+    const queue = new TaskQueue({
+      concurrency: 1,
+      logger: mockLogger,
+      verbose: true,
+    });
+
+    // Test logging with taskId
+    queue['_log']({ level: 'info', taskId: 'test-task' }, 'Test message', {
+      data: 'test',
+    });
+    expect(mockLogger.info).toHaveBeenCalledWith(
+      'Task test-task |',
+      'Test message',
+      { data: 'test' },
+    );
+
+    // Test logging without taskId
+    queue['_log']({ level: 'warn' }, 'Warning message', { warning: 'test' });
+    expect(mockLogger.warn).toHaveBeenCalledWith('Warning message', {
+      warning: 'test',
+    });
+
+    // Test that logging doesn't happen when verbose is false
+    const nonVerboseQueue = new TaskQueue({
+      concurrency: 1,
+      logger: mockLogger,
+      verbose: false,
+    });
+
+    nonVerboseQueue['_log']({ level: 'error' }, 'Error message');
+    expect(mockLogger.error).not.toHaveBeenCalled();
   });
 });

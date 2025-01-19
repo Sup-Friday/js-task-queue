@@ -357,15 +357,6 @@ export abstract class TaskQueueCore {
       promiseQueue.length += 1;
       promiseQueue.taskIds.push(task.taskId);
 
-      // Update the length and task ids for all the parent queues
-      let currentParentQueue = promiseQueue.parentQueue;
-      while (currentParentQueue) {
-        currentParentQueue.length += 1;
-        currentParentQueue.taskIds.push(task.taskId);
-
-        currentParentQueue = currentParentQueue.parentQueue;
-      }
-
       task.queueId = promiseQueue.queueId;
 
       const resolveTask = (
