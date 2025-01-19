@@ -1,6 +1,6 @@
 {
   "name": "taskon",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A simple JavaScript/TypeScript tasks queue that supports dynamic concurrency control",
   "keywords": [
     "task",
@@ -27,7 +27,7 @@
     "clean": "(rm -rf dist || true) && (rm -rf coverage || true) && (rm -rf yarn-error.log || true) && (rm -rf yarn.lock || true)",
     "clean:all": "npm run clean && (rm -rf node_modules || true)",
     "doc": "typedoc",
-    "prepare": "yarn build && yarn lint && yarn test && yarn doc",
+    "prepare": "yarn build && yarn lint && yarn test",
     "run-js-example": "node examples/js-example.js",
     "run-ts-example": "tsx examples/ts-example.ts"
   },
